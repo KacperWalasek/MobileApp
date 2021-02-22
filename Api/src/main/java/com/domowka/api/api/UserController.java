@@ -1,14 +1,20 @@
 package com.domowka.api.api;
 
+import com.domowka.api.dto.LoginDTO;
+import com.domowka.api.dto.LoginResponseDTO;
 import com.domowka.api.model.User;
 import com.domowka.api.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.awt.*;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +52,17 @@ public class UserController {
         if(user.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is no user with such id in database");
         return user.get();
+    }
+    @GetMapping(value = "/login")
+    public LoginResponseDTO login(@RequestBody LoginDTO loginDTO){
+        LoginResponseDTO dto = service.login(loginDTO);
+        if(dto == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong username or password");
+        return dto;
+    }
+    @GetMapping(path="/refreshToken/{token}")
+    public LoginResponseDTO refreshToken(@PathVariable("token") String token){
+        return service.refreshToken(token);
     }
 
 

@@ -1,5 +1,6 @@
 package com.domowka.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Type;
 
@@ -42,7 +43,7 @@ public class User {
     public String getUsername() {
         return username;
     }
-
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

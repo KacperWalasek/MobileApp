@@ -5,6 +5,7 @@ import com.domowka.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,5 +48,11 @@ public class MySQLUserDao implements UserDao {
         oldUser.setPassword(user.getPassword());
         userRepository.save(oldUser);
         return 0;
+    }
+
+    @Override
+    public User getUser(String username) {
+        List<User> list = userRepository.findByUsername(username);
+        return list.isEmpty()? null: list.get(0);
     }
 }

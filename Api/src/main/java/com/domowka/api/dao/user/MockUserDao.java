@@ -36,5 +36,10 @@ public class MockUserDao implements UserDao {
         return 0;
     }
 
+    @Override
+    public User getUser(String username) {
+        return null;
+    }
+
     List<User> users = new ArrayList<>();
 }
