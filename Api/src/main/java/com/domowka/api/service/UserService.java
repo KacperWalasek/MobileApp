@@ -1,8 +1,10 @@
 package com.domowka.api.service;
 
+import com.domowka.api.dao.partyMember.PartyMemberDao;
 import com.domowka.api.dao.user.UserDao;
 import com.domowka.api.dto.LoginDTO;
 import com.domowka.api.dto.LoginResponseDTO;
+import com.domowka.api.model.PartyMember;
 import com.domowka.api.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -13,9 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import java.util.List;
@@ -25,11 +25,14 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserDao userDao;
+    private final PartyMemberDao partyMemberDao;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    public UserService(@Qualifier("mySqlUserDao") UserDao userDao) {
+    public UserService(@Qualifier("mySqlUserDao") UserDao userDao,
+                       @Qualifier("mySqlPartyMemberDao")  PartyMemberDao partyMemberDao) {
         this.userDao = userDao;
+        this.partyMemberDao = partyMemberDao;
     }
 
     public int addUser(User user){
@@ -52,13 +55,15 @@ public class UserService {
         user.setPassword(oldUser.get().getPassword());
         return userDao.updateUser(id, user);
     }
-
+    public List<PartyMember> getMemberships(UUID userId){
+        return partyMemberDao.getByUser(userId);
+    }
     public LoginResponseDTO login(LoginDTO loginDTO) {
         User user = userDao.getUser(loginDTO.getUsername());
         if(user==null || !passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
             return null;
         return user == null? null: new LoginResponseDTO(user.getId(),
-                getJWTToken(user.getUsername(),60), // 10 minutes
+                getJWTToken(user.getUsername(),600), // 10 minutes
                 getJWTToken(user.getUsername(), 4*3600)); //4 hours
     }
 
@@ -66,7 +71,7 @@ public class UserService {
         Claims claims = Jwts.parser().setSigningKey("mySecretKey".getBytes()).parseClaimsJws(token).getBody();
         User user = userDao.getUser(claims.getSubject());
         return new LoginResponseDTO(user.getId(),
-                getJWTToken(user.getUsername(),60),
+                getJWTToken(user.getUsername(),600),
                 getJWTToken(user.getUsername(), 4*3600));
     }
 
@@ -90,4 +95,5 @@ public class UserService {
 
         return token;
     }
+
 }

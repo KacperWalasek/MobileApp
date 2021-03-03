@@ -4,12 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Type;
 
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
+import java.util.List;
 
 @Entity
 public class User {
@@ -20,6 +17,8 @@ public class User {
     private String username;
     private String email;
     private String password;
+    @OneToMany(mappedBy = "user")
+    private List<PartyMember> memberList;
     public User(){}
     public User( @JsonProperty("username") String username, @JsonProperty("email") String email, @JsonProperty("password") String password) {
         this.username = username;

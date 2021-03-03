@@ -26,6 +26,8 @@ public class ApiConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/user/login","/api/user/refreshToken/**")
                 .permitAll()
+                .antMatchers(HttpMethod.POST, "/api/user/register" )
+                .permitAll()
                 .anyRequest().authenticated();
     }
     @Bean

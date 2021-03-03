@@ -2,6 +2,7 @@ package com.domowka.api.api;
 
 import com.domowka.api.dto.LoginDTO;
 import com.domowka.api.dto.LoginResponseDTO;
+import com.domowka.api.model.PartyMember;
 import com.domowka.api.model.User;
 import com.domowka.api.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.awt.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class UserController {
 
         return this.service.getAllUsers();
     }
-    @PostMapping
+    @PostMapping(path = "/register")
     public void addUser(@RequestBody User user){
 
         this.service.addUser(user);
@@ -64,7 +65,10 @@ public class UserController {
     public LoginResponseDTO refreshToken(@PathVariable("token") String token){
         return service.refreshToken(token);
     }
-
+    @GetMapping(path = "/memberships/{id}")
+    public List<PartyMember> getMemberships(@PathVariable("id") UUID userID){
+        return service.getMemberships(userID);
+    }
 
 
 }
