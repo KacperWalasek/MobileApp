@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,6 +59,10 @@ public class PartyController {
         if(pm.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is no party or user with such id in database");
         return pm.get();
+    }
+    @PostMapping(path = "/members")
+    public PartyMember[] addMembers(@RequestBody PartyMemberDTO[] members){
+        return service.addMembers(members);
     }
     @GetMapping(path = "/member/{id}")
     public Iterable<PartyMember> getMembers(@PathVariable("id") UUID partyId){return service.getMembers(partyId); }

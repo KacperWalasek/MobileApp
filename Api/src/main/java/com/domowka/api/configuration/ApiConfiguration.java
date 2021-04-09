@@ -24,9 +24,9 @@ public class ApiConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .addFilterAfter(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/user/login","/api/user/refreshToken/**")
+                .antMatchers(HttpMethod.GET,"/api/user/refreshToken/**")
                 .permitAll()
-                .antMatchers(HttpMethod.POST, "/api/user/register" )
+                .antMatchers(HttpMethod.POST, "/api/user/login", "/api/user/register" )
                 .permitAll()
                 .anyRequest().authenticated();
     }

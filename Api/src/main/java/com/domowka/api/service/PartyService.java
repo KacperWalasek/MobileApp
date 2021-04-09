@@ -13,9 +13,11 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PartyService {
@@ -64,5 +66,15 @@ public class PartyService {
     }
     public Optional<PartyMember> changeRole(UUID partyId, UUID userId, String role){
         return partyMemberDao.changeRole(partyId,userId,role);
+    }
+
+    public PartyMember[] addMembers(PartyMemberDTO[] members) {
+        return Arrays.stream(members)
+                .map(this::addMember)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList())
+                .toArray(PartyMember[]::new);
+
     }
 }

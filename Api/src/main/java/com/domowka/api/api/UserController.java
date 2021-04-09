@@ -2,6 +2,7 @@ package com.domowka.api.api;
 
 import com.domowka.api.dto.LoginDTO;
 import com.domowka.api.dto.LoginResponseDTO;
+import com.domowka.api.model.Party;
 import com.domowka.api.model.PartyMember;
 import com.domowka.api.model.User;
 import com.domowka.api.service.UserService;
@@ -54,7 +55,7 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is no user with such id in database");
         return user.get();
     }
-    @GetMapping(value = "/login")
+    @PostMapping(value = "/login")
     public LoginResponseDTO login(@RequestBody LoginDTO loginDTO){
         LoginResponseDTO dto = service.login(loginDTO);
         if(dto == null)
@@ -63,12 +64,16 @@ public class UserController {
     }
     @GetMapping(path="/refreshToken/{token}")
     public LoginResponseDTO refreshToken(@PathVariable("token") String token){
+
         return service.refreshToken(token);
     }
     @GetMapping(path = "/memberships/{id}")
-    public List<PartyMember> getMemberships(@PathVariable("id") UUID userID){
+    public List<Party> getMemberships(@PathVariable("id") UUID userID){
         return service.getMemberships(userID);
     }
-
+    @GetMapping(path = "/organize/{id}")
+    public List<Party> getOrganized(@PathVariable("id") UUID userID){
+        return service.getOrganized(userID);
+    }
 
 }

@@ -1,9 +1,11 @@
 package com.domowka.api.service;
 
+import com.domowka.api.dao.party.PartyDao;
 import com.domowka.api.dao.partyMember.PartyMemberDao;
 import com.domowka.api.dao.user.UserDao;
 import com.domowka.api.dto.LoginDTO;
 import com.domowka.api.dto.LoginResponseDTO;
+import com.domowka.api.model.Party;
 import com.domowka.api.model.PartyMember;
 import com.domowka.api.model.User;
 import io.jsonwebtoken.Claims;
@@ -26,13 +28,16 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserDao userDao;
     private final PartyMemberDao partyMemberDao;
+    private final PartyDao partyDao;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     public UserService(@Qualifier("mySqlUserDao") UserDao userDao,
-                       @Qualifier("mySqlPartyMemberDao")  PartyMemberDao partyMemberDao) {
+                       @Qualifier("mySqlPartyMemberDao") PartyMemberDao partyMemberDao,
+                       @Qualifier("mySqlPartyDao")  PartyDao partyDao) {
         this.userDao = userDao;
         this.partyMemberDao = partyMemberDao;
+        this.partyDao = partyDao;
     }
 
     public int addUser(User user){
@@ -55,15 +60,27 @@ public class UserService {
         user.setPassword(oldUser.get().getPassword());
         return userDao.updateUser(id, user);
     }
-    public List<PartyMember> getMemberships(UUID userId){
-        return partyMemberDao.getByUser(userId);
+    public List<Party> getMemberships(UUID userId){
+        return partyMemberDao.getByUser(userId).stream()
+                .map(member -> partyDao.getParty(member.getPartyId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+    public List<Party> getOrganized(UUID userId) {
+        return partyMemberDao.getByUser(userId).stream()
+                .filter(member -> member.getRole().equals("Admin"))
+                .map(member -> partyDao.getParty(member.getPartyId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
     public LoginResponseDTO login(LoginDTO loginDTO) {
         User user = userDao.getUser(loginDTO.getUsername());
         if(user==null || !passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
             return null;
         return user == null? null: new LoginResponseDTO(user.getId(),
-                getJWTToken(user.getUsername(),600), // 10 minutes
+                getJWTToken(user.getUsername(),10*60), // 10 minutes
                 getJWTToken(user.getUsername(), 4*3600)); //4 hours
     }
 
